@@ -4,12 +4,25 @@ import (
 	"net/http"
 
 	"fmt"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 )
 
 func main() {
-	fmt.Println("[Static file server] start")
-	http.Handle("/", http.FileServer(http.Dir("./")))
-	fmt.Println(http.ListenAndServe(":1080", nil))
-	fmt.Println("[Static file server] stop")
-
+	mux := http.NewServeMux()
+	mux.Handle("/", http.FileServer(http.Dir("./")))
+	s := &http.Server{Addr: ":1082", Handler: mux}
+	go func() {
+		fmt.Println("[Static file server] start")
+		if err := s.ListenAndServe(); err != nil {
+			panic(err)
+		}
+	}()
+	time.Sleep(time.Second)
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, syscall.SIGHUP, syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGINT)
+	fmt.Printf("[Static file server] stopped by signal:%v\n", <-c)
+	s.Shutdown(nil)
 }
