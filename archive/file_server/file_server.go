@@ -13,9 +13,9 @@ import (
 func main() {
 	mux := http.NewServeMux()
 	mux.Handle("/", http.FileServer(http.Dir("./")))
-	s := &http.Server{Addr: ":1082", Handler: mux}
+	s := &http.Server{Addr: ":1080", Handler: mux}
 	go func() {
-		fmt.Println("[Static file server] start")
+		fmt.Println("[Static file server] start to listen port 1080")
 		if err := s.ListenAndServe(); err != nil {
 			panic(err)
 		}
