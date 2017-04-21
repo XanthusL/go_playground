@@ -1,2 +1,2 @@
-# golang_playground
-Go learning
+# go_playground
+Demos in golang learning
