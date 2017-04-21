@@ -1,2 +1,3 @@
-# go_playground
-Demos in golang learning
+# Playground
+- Demos in golang learning.
+- Demos of shell learning.
