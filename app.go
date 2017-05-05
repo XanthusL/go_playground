@@ -1,14 +1,20 @@
 package main
 
-import "fmt"
+import (
+	"flag"
+	"fmt"
+)
 
-func aaa(a int32) int32 {
-	return a << 2
-}
+var version string
 
 func main() {
-	if 8 >= aaa(2) {
-		fmt.Println("asdf")
+	showVersion := flag.Bool("version", false, "show version info")
+	showHelp := flag.Bool("help", false, "show usage")
+	flag.Parse()
+	if *showVersion {
+		fmt.Println(version)
 	}
-
+	if *showHelp {
+		flag.Usage()
+	}
 }
