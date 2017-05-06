@@ -20,13 +20,9 @@ func TestArrayList_RemoveAt(t *testing.T) {
 		fmt.Println(e.Value)
 		e = e.Next()
 	}
+	fmt.Println("-------------------")
 	fmt.Println(l.RemoveAt(-1))
 	fmt.Println(l.RemoveAt(100))
 	fmt.Println(l.RemoveAt(2))
-	length = l.Len()
-	e = l.List.Front()
-	for i := 0; i < length; i++ {
-		fmt.Println(e.Value)
-		e = e.Next()
-	}
+	fmt.Println(l.ToSlice())
 }
