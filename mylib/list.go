@@ -57,10 +57,10 @@ func (a *ArrayList) Get(index int) interface{} {
 }
 func (a *ArrayList) IndexOf(e *list.Element) int {
 	l := a.Len()
-	tmp := a.Front()
-	if tmp == nil {
+	if l == 0 {
 		return -1
 	}
+	tmp := a.Front()
 	for i := 0; i < l; i++ {
 		if tmp == e {
 			return i
@@ -72,10 +72,10 @@ func (a *ArrayList) IndexOf(e *list.Element) int {
 }
 func (a *ArrayList) LastIndexOf(e *list.Element) int {
 	l := a.Len()
-	tmp := a.Back()
-	if tmp == nil {
+	if l == 0 {
 		return -1
 	}
+	tmp := a.Back()
 	for i := l - 1; i >= 0; i-- {
 		if tmp == e {
 			return i
