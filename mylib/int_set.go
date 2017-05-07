@@ -32,3 +32,6 @@ func (s *IntSet) Has(n int) bool {
 func (s *IntSet) IsEmpty() bool {
 	return len(s.data) == 0
 }
+func (s *IntSet) GetMap() map[int]struct{} {
+	return s.data
+}
