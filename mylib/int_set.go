@@ -35,3 +35,11 @@ func (s *IntSet) IsEmpty() bool {
 func (s *IntSet) GetMap() map[int]struct{} {
 	return s.data
 }
+
+func (s *IntSet) ToSlice() []int {
+	ints := make([]int, 0)
+	for i := range s.data {
+		ints = append(ints, i)
+	}
+	return ints
+}
