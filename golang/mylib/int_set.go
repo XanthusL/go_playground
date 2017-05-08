@@ -43,3 +43,11 @@ func (s *IntSet) ToSlice() []int {
 	}
 	return ints
 }
+
+func (s *IntSet) Clone() *IntSet {
+	m := make(map[int]struct{})
+	for i := range s.data {
+		m[i] = struct{}{}
+	}
+	return &IntSet{data: m}
+}
