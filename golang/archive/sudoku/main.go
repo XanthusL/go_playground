@@ -10,8 +10,13 @@ import (
 )
 
 var grids = [9][9]int{}
-var blankCount = 0
 var candidates = make(map[int]*mylib.IntSet)
+
+type Node struct {
+	Options     []int
+	IndexInGrid int
+	Next        *Node
+}
 
 // Sudoku resolver
 func main() {
@@ -56,60 +61,41 @@ func main() {
 		s.Add(9)
 		candidates[i] = s
 	}
-	traversalRow(func(r [9]int) {
-		for _, v := range r {
-			if v == 0 {
-				blankCount++
-			}
-		}
-	})
+
 	go func() {
-		time.Sleep(time.Second)
+		time.Sleep(time.Second * 5)
 		fmt.Println("Too slow, there must be something wrong.")
+		fmt.Println(grids)
 		os.Exit(2)
 	}()
 	// Exclude numbers in candidates
 	exclude()
 	// Try one by one
 	// tryingTable := make(map[int]int)
-	backup := [81]int{}
+	var solution *Node
+	var nodeCursor *Node
 	for i := range grids {
 		for j, n := range grids[i] {
+			bigIndex := i*9 + j
 			if n == 0 {
-				bigIndex := i*9 + j
-				m := candidates[bigIndex].GetMap()
-				if len(m) == 0 {
-					panic("No candidates to use.")
+				s := candidates[bigIndex]
+				n := &Node{
+					IndexInGrid: bigIndex,
+					Options:     s.ToSlice(),
 				}
-				for c := range m {
-					backup[bigIndex] = c
-					break
+				if solution == nil {
+					solution = n
+					nodeCursor = n
+				} else {
+					nodeCursor.Next = n
 				}
+				nodeCursor = n
 			}
 		}
 	}
-	//
-	ok := true
-	validate := func(r [9]int) {
-		e := check(r, true)
-		if e != nil {
-			ok = false
-		}
-	}
-	traversalRow(validate)
-	traversalSubGrid(validate)
-	for i := range grids {
-		validate(grids[i])
-	}
-	if ok {
-		fmt.Println(grids)
-		return
-	} else {
-		for i := range backup {
-			grids[i/9][i%9] = 0
-			backup[i] = 0
-		}
-	}
+	panic("Not completed")
+	fmt.Println(walk(solution))
+	fmt.Println(grids)
 
 }
 func check(numbers [9]int, full bool) error {
@@ -132,21 +118,22 @@ func check(numbers [9]int, full bool) error {
 	}
 	return nil
 }
-
 func traversalRow(f func([9]int)) {
 	for i := 0; i < 9; i++ {
-		c := [...]int{
-			grids[0][i],
-			grids[1][i],
-			grids[2][i],
-			grids[3][i],
-			grids[4][i],
-			grids[5][i],
-			grids[6][i],
-			grids[7][i],
-			grids[8][i],
-		}
-		f(c)
+		f(getRow(i))
+	}
+}
+func getRow(i int) [9]int {
+	return [...]int{
+		grids[0][i],
+		grids[1][i],
+		grids[2][i],
+		grids[3][i],
+		grids[4][i],
+		grids[5][i],
+		grids[6][i],
+		grids[7][i],
+		grids[8][i],
 	}
 }
 func traversalSubGrid(f func([9]int)) {
@@ -199,28 +186,30 @@ func getColumn(i int) [9]int {
 	}
 }
 func exclude() error {
+	exclude := func(i int, n [9]int) {
+		for _, v := range n {
+			if v != 0 {
+				if c, ok := candidates[i]; !ok {
+					panic("Something wrong with candidates.")
+				} else {
+					c.Remove(v)
+				}
+			}
+		}
+	}
 	for i := range grids {
 		for j, n := range grids[i] {
 			if n != 0 {
+				delete(candidates, i*9+j)
 				continue
 			}
-			exclude := func(n [9]int) {
-				for _, v := range n {
-					if v != 0 {
-						if c, ok := candidates[9*i+j]; !ok {
-							panic("Something wrong with candidates.")
-						} else {
-							c.Remove(v)
-						}
-					}
-				}
-			}
 			numbers := getSubGrid(i, j)
-			exclude(numbers)
+
+			exclude(i*9+j, numbers)
 			numbers = getColumn(j)
-			exclude(numbers)
+			exclude(i*9+j, numbers)
 			numbers = grids[i]
-			exclude(numbers)
+			exclude(i*9+j, numbers)
 			if candidates[9*i+j].Size() == 1 {
 				m := candidates[9*i+j].GetMap()
 				if len(m) == 0 {
@@ -228,34 +217,71 @@ func exclude() error {
 				}
 				for N := range m {
 					grids[i][j] = N
-					blankCount--
 				}
+				delete(candidates, i*9+j)
+			} else {
+				fmt.Println(candidates[9*i+j].ToSlice())
 			}
 		}
 	}
 	return nil
 }
+func walk(n *Node) bool {
+	panic("Not completed")
+	if n == nil {
+		return false
+	}
+	if n.Next != nil {
+		for _, v := range n.Options {
+			grids[n.IndexInGrid/9][n.IndexInGrid%9] = v
+			if walk(n.Next) {
+				return true
+			}
+		}
+	} else {
+		return isValidate()
+	}
+	return false
+}
+func isValidate() bool {
+	for i := 0; i < 9; i++ {
+		c := getColumn(i)
+		e := check(c, true)
+		if e != nil {
+			return false
+		}
+		c = getRow(i)
+		e = check(c, true)
+		if e != nil {
+			return false
+		}
+	}
+	for j := 0; j < 3; j++ {
+		for k := 0; k < 3; k++ {
+			x := 3 * j
+			y := 3 * k
+			g := getSubGrid(x, y)
+			e := check(g, true)
+			if e != nil {
+				return false
+			}
+		}
+	}
+	return true
+}
 
 /*
 Test case:
 
-Type in the line 1 :
-0 0 4 3 0 2 6 0 0
-Type in the line 2 :
-0 0 8 0 0 0 9 0 0
-Type in the line 3 :
-0 3 0 0 7 0 0 2 0
-Type in the line 4 :
-0 0 3 0 0 0 2 0 0
-Type in the line 5 :
-9 0 0 0 1 0 0 0 8
-Type in the line 6 :
-4 0 0 7 0 8 0 0 1
-Type in the line 7 :
-0 0 7 9 0 5 1 0 0
-Type in the line 8 :
-0 5 0 8 2 1 0 3 0
-Type in the line 9 :
-0 0 0 0 0 0 0 0 0
+0 0 0 0 0 6 0 9 0
+0 8 0 5 0 0 7 0 0
+0 4 9 0 0 0 5 0 0
+0 3 0 8 1 0 0 0 5
+4 0 0 0 0 0 0 0 9
+2 0 0 0 9 7 0 8 0
+0 0 5 0 0 0 2 1 0
+0 0 6 0 0 5 0 4 0
+0 7 0 3 0 0 0 0 0
+
 
 */
