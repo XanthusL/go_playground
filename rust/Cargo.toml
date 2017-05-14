@@ -4,3 +4,7 @@ name = "rust_learning"
 version = "0.0.1"
 authors = ["liyiheng <liyihenggnehiyil@126.com>"]
 
+[dependencies]
+
+rand = "0.3.0"
+
