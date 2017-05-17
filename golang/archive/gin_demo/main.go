@@ -5,7 +5,7 @@ import (
 
 	"strconv"
 
-	"src/github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin"
 )
 
 var router *gin.Engine
