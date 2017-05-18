@@ -1,5 +1,5 @@
 # Created by .ignore support plugin (hsz.mobi)
-golang/vender
+golang/vendor
 rust/target
 ### Vim template
 # swap
