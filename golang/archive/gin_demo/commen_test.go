@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 
-	"src/github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin"
 )
 
 var tmpArticles []article

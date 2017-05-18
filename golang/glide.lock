@@ -1,0 +1,48 @@
+hash: df5b651120ccc44311423cabe8f0359ae44598a578607d4d8d1320b118637b8d
+updated: 2017-05-18T10:35:02.94430087+08:00
+imports:
+- name: github.com/gin-gonic/gin
+  version: e2212d40c62a98b388a5eb48ecbdcf88534688ba
+  subpackages:
+  - binding
+  - render
+- name: github.com/golang/protobuf
+  version: 2402d76f3d41f928c7902a765dfc872356dd3aad
+  subpackages:
+  - proto
+- name: github.com/manucorporat/sse
+  version: ee05b128a739a0fb76c7ebd3ae4810c1de808d6d
+- name: github.com/mattn/go-colorable
+  version: 5411d3eea5978e6cdc258b30de592b60df6aba96
+  repo: https://github.com/mattn/go-colorable
+- name: github.com/mattn/go-isatty
+  version: fc9e8d8ef48496124e79ae0df75490096eccf6fe
+- name: golang.org/x/net
+  version: f315505cf3349909cdf013ea56690da34e96a451
+  subpackages:
+  - context
+- name: golang.org/x/sys
+  version: 98b5b1e7e80eb60271c8dc4eba6521ec2c3e811e
+  subpackages:
+  - unix
+- name: gopkg.in/cheggaaa/pb.v1
+  version: 180c76fdb3025713f501cd481e47810a9c715bd7
+- name: gopkg.in/cheggaaa/pb.v2
+  version: 180c76fdb3025713f501cd481e47810a9c715bd7
+  subpackages:
+  - termutil
+- name: gopkg.in/fatih/color.v1
+  version: 9131ab34cf20d2f6d83fdc67168a5430d1c7dc23
+- name: gopkg.in/go-playground/validator.v8
+  version: c193cecd124b5cc722d7ee5538e945bdb3348435
+- name: gopkg.in/mattn/go-colorable.v0
+  version: d228849504861217f796da67fae4f6e347643f15
+- name: gopkg.in/mattn/go-isatty.v0
+  version: fc9e8d8ef48496124e79ae0df75490096eccf6fe
+- name: gopkg.in/mattn/go-runewidth.v0
+  version: 9e777a8366cce605130a531d2cd6363d07ad7317
+- name: gopkg.in/VividCortex/ewma.v1
+  version: 2f8aa9741ab4b5b80945c750b871131b88ef5b7f
+- name: gopkg.in/yaml.v2
+  version: cd8b52f8269e0feb286dfeef29f8fe4d5b397e0b
+testImports: []
