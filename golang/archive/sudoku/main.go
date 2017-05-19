@@ -71,7 +71,7 @@ func main() {
 	// Exclude numbers in candidates
 	exclude()
 	// Try one by one
-	// tryingTable := make(map[int]int)
+	// List of options for blanks
 	var solution *Node
 	var nodeCursor *Node
 	for i := range grids {
@@ -93,7 +93,6 @@ func main() {
 			}
 		}
 	}
-	panic("Not completed")
 	fmt.Println(walk(solution))
 	fmt.Println(grids)
 
@@ -120,20 +119,7 @@ func check(numbers [9]int, full bool) error {
 }
 func traversalRow(f func([9]int)) {
 	for i := 0; i < 9; i++ {
-		f(getRow(i))
-	}
-}
-func getRow(i int) [9]int {
-	return [...]int{
-		grids[0][i],
-		grids[1][i],
-		grids[2][i],
-		grids[3][i],
-		grids[4][i],
-		grids[5][i],
-		grids[6][i],
-		grids[7][i],
-		grids[8][i],
+		f(grids[i])
 	}
 }
 func traversalSubGrid(f func([9]int)) {
@@ -227,15 +213,33 @@ func exclude() error {
 	return nil
 }
 func walk(n *Node) bool {
-	panic("Not completed")
 	if n == nil {
 		return false
 	}
 	if n.Next != nil {
+	trying:
 		for _, v := range n.Options {
+			// Get all values related to grids[n.IndexInGrid/9][n.IndexInGrid%9]
+			r := grids[n.IndexInGrid%9]
+			c := getColumn(n.IndexInGrid / 9)
+			g := getSubGrid(n.IndexInGrid/9, n.IndexInGrid%9)
+			rlt := append(r[:], c[:]...)
+			rlt = append(rlt, g[:]...)
+
+			// if unusable, continue
+			// else try next blank
+			for _, rv := range rlt {
+				if rv != 0 && rv == v {
+					continue trying
+				}
+			}
+
 			grids[n.IndexInGrid/9][n.IndexInGrid%9] = v
 			if walk(n.Next) {
 				return true
+			} else {
+				// Cleanup value of the blank
+				grids[n.IndexInGrid/9][n.IndexInGrid%9] = 0
 			}
 		}
 	} else {
@@ -250,7 +254,7 @@ func isValidate() bool {
 		if e != nil {
 			return false
 		}
-		c = getRow(i)
+		c = grids[i]
 		e = check(c, true)
 		if e != nil {
 			return false
