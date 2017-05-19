@@ -214,36 +214,32 @@ func exclude() error {
 }
 func walk(n *Node) bool {
 	if n == nil {
-		return false
+		return isValidate()
 	}
-	if n.Next != nil {
-	trying:
-		for _, v := range n.Options {
-			// Get all values related to grids[n.IndexInGrid/9][n.IndexInGrid%9]
-			r := grids[n.IndexInGrid%9]
-			c := getColumn(n.IndexInGrid / 9)
-			g := getSubGrid(n.IndexInGrid/9, n.IndexInGrid%9)
-			rlt := append(r[:], c[:]...)
-			rlt = append(rlt, g[:]...)
+trying:
+	for _, v := range n.Options {
+		// Get all values related to grids[n.IndexInGrid/9][n.IndexInGrid%9]
+		r := grids[n.IndexInGrid%9]
+		c := getColumn(n.IndexInGrid / 9)
+		g := getSubGrid(n.IndexInGrid/9, n.IndexInGrid%9)
+		rlt := append(r[:], c[:]...)
+		rlt = append(rlt, g[:]...)
 
-			// if unusable, continue
-			// else try next blank
-			for _, rv := range rlt {
-				if rv != 0 && rv == v {
-					continue trying
-				}
-			}
-
-			grids[n.IndexInGrid/9][n.IndexInGrid%9] = v
-			if walk(n.Next) {
-				return true
-			} else {
-				// Cleanup value of the blank
-				grids[n.IndexInGrid/9][n.IndexInGrid%9] = 0
+		// if unusable, continue
+		// else try next blank
+		for _, rv := range rlt {
+			if rv != 0 && rv == v {
+				continue trying
 			}
 		}
-	} else {
-		return isValidate()
+
+		grids[n.IndexInGrid/9][n.IndexInGrid%9] = v
+		if walk(n.Next) {
+			return true
+		} else {
+			// Cleanup value of the blank
+			grids[n.IndexInGrid/9][n.IndexInGrid%9] = 0
+		}
 	}
 	return false
 }
