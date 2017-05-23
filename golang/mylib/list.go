@@ -5,15 +5,15 @@ import "container/list"
 // A Java-like list struct
 // just a demo, can't ensure performance,
 // using slice instead of list.List might be better
-// TODO : 1. A slice implementation of ArrayList. 2. Benchmark
-type ArrayList struct {
+// TODO : 1. A slice implementation of ListList. 2. Benchmark
+type ListList struct {
 	list.List
 }
 
-func (a *ArrayList) Add(v interface{}) {
+func (a *ListList) Add(v interface{}) {
 	a.List.PushBack(v)
 }
-func (a *ArrayList) RemoveAt(index int) interface{} {
+func (a *ListList) RemoveAt(index int) interface{} {
 	l := a.List.Len()
 	if index < 0 || index >= l {
 		return nil
@@ -34,7 +34,7 @@ func (a *ArrayList) RemoveAt(index int) interface{} {
 		return a.List.Remove(e)
 	}
 }
-func (a *ArrayList) Get(index int) interface{} {
+func (a *ListList) Get(index int) interface{} {
 	l := a.List.Len()
 	if index < 0 || index >= l {
 		return nil
@@ -55,7 +55,7 @@ func (a *ArrayList) Get(index int) interface{} {
 		return e.Value
 	}
 }
-func (a *ArrayList) IndexOf(e *list.Element) int {
+func (a *ListList) IndexOf(e *list.Element) int {
 	l := a.Len()
 	if l == 0 {
 		return -1
@@ -70,7 +70,7 @@ func (a *ArrayList) IndexOf(e *list.Element) int {
 	}
 	return -1
 }
-func (a *ArrayList) LastIndexOf(e *list.Element) int {
+func (a *ListList) LastIndexOf(e *list.Element) int {
 	l := a.Len()
 	if l == 0 {
 		return -1
@@ -84,7 +84,7 @@ func (a *ArrayList) LastIndexOf(e *list.Element) int {
 	}
 	return -1
 }
-func (a *ArrayList) ToSlice() []interface{} {
+func (a *ListList) ToSlice() []interface{} {
 	l := a.Len()
 	if l == 0 {
 		return make([]interface{}, 0)
@@ -96,4 +96,65 @@ func (a *ArrayList) ToSlice() []interface{} {
 		tmp = tmp.Next()
 	}
 	return slc
+}
+
+//type IList interface {
+//	Add(v interface{})
+//	Remove(v interface{})
+//	RemoveAt(index int) interface{}
+//	Get(index int) interface{}
+//}
+
+// A slice implementation of Java-ListList
+// Extremely early implementation
+// TODO Slice gotchas
+type SliceList struct {
+	data []interface{}
+}
+
+func (l *SliceList) Init() {
+	l.data = make([]interface{}, 0)
+}
+
+func (l *SliceList) Add(v interface{}) {
+	l.data = append(l.data, v)
+}
+
+func (l *SliceList) IndexOf(e interface{}) int {
+	for i, v := range l.data {
+		if v == e {
+			return i
+		}
+	}
+	return -1
+}
+
+func (l *SliceList) Remove(v interface{}) {
+	i := l.IndexOf(v)
+	if i != -1 {
+		l.RemoveAt(i)
+	}
+}
+
+func (l *SliceList) RemoveAt(i int) {
+	size := len(l.data)
+	part1 := l.data[0:i]
+	part2 := l.data[i+1 : size]
+	l.data = append(part1, part2...)
+}
+
+func (l *SliceList) Get(index int) interface{} {
+	return l.data[index]
+}
+
+func (l *SliceList) Insert(index int, v interface{}) {
+	// part1 := l.data[0:index]
+	part1 := l.data[0:index:index]
+	part2 := l.data[index:]
+	part1 = append(part1, v)
+	l.data = append(part1, part2...)
+}
+
+func (l *SliceList) Size() int {
+	return len(l.data)
 }
