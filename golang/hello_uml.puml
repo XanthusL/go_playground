@@ -1,0 +1,22 @@
+@startuml
+participant Alice
+participant Bob
+box "qwert"
+collections "asdf" as abcd
+end box
+Alice -> Bob: Authentication Request
+Bob --> Alice: Authentication Response
+
+Alice -> Bob: Another authentication Request
+Alice <-- Bob: another authentication Response
+
+Alice -> abcd: Line to collection in box
+@enduml
+
+----startuml
+Alice -> Bob: Authentication Request
+Bob --> Alice: Authentication Response
+
+Alice -> Bob: Another authentication Request
+Alice <-- Bob: another authentication Response
+----enduml
