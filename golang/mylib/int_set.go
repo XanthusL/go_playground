@@ -59,6 +59,9 @@ type Int64Set struct {
 func (s *Int64Set) Init() {
 	s.data = make(map[int64]struct{})
 }
+func (s *Int64Set) RemoveAll() {
+	s.Init()
+}
 func (s *Int64Set) Size() int {
 	return len(s.data)
 }

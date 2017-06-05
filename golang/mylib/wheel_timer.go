@@ -117,4 +117,5 @@ func (wt *WheelTimer) process() {
 			wt.doAction(id)
 		}
 	}(expiredIDs.ToSlice())
+	expiredIDs.RemoveAll()
 }
