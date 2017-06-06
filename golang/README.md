@@ -11,4 +11,4 @@ Several sub directories here.<br>
 Each of them is a note or a demo.
 
 ### mylib
-Something useful should be here. Yep, [my little tricks](https://github.com/XanthusL/Playground/blob/master/golang/mylib/README.md)
+Something useful should be here. Yep, [my little tricks](https://github.com/XanthusL/Playground/tree/master/golang/mylib)
