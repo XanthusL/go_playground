@@ -1,4 +1,4 @@
-# VIM uncomplete notes
+# VIM uncompleted notes
 
 > Ultimate manual `:help`
 
