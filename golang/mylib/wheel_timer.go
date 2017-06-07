@@ -49,6 +49,16 @@ func (cl *cycleList) takeStep() {
 
 // Initialize the timer
 func (wt *WheelTimer) Init(step, timeout time.Duration, doWhenExpired func(int64)) {
+	n := timeout % step
+	if n != 0 {
+		// timeout would not work
+		// actually (timeout/step)*step works.
+		// eg.:	Init(3s,10s,logout)
+		//	there will be 3 slots,
+		//	3s * 3 == 9s
+		panic("timeout%step must be zero")
+	}
+
 	wt.step = step
 	wt.timeout = timeout
 	wt.doAction = doWhenExpired
@@ -67,7 +77,12 @@ func (wt *WheelTimer) Init(step, timeout time.Duration, doWhenExpired func(int64
 
 }
 
-// Update an id in the timer
+// Update or register an id in the timer
+//
+// If an id is never updated since last time in
+// expire duration which set in Init() function,
+// means it's expired, and doWhenExpired(id)
+// will be called
 func (wt *WheelTimer) Update(id int64) {
 	wt.Lock()
 	defer wt.Unlock()
@@ -104,6 +119,8 @@ func (wt *WheelTimer) Start() {
 		}
 	}()
 }
+
+// execute all expired IDs
 func (wt *WheelTimer) process() {
 	defer func() {
 		if r := recover(); r != nil {
