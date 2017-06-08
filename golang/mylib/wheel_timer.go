@@ -1,6 +1,7 @@
 package mylib
 
 import (
+	"errors"
 	"fmt"
 	"runtime/debug"
 	"sync"
@@ -48,7 +49,7 @@ func (cl *cycleList) takeStep() {
 }
 
 // Initialize the timer
-func (wt *WheelTimer) Init(step, timeout time.Duration, doWhenExpired func(int64)) {
+func (wt *WheelTimer) Init(step, timeout time.Duration, doWhenExpired func(int64)) error {
 	n := timeout % step
 	if n != 0 {
 		// timeout would not work
@@ -56,7 +57,7 @@ func (wt *WheelTimer) Init(step, timeout time.Duration, doWhenExpired func(int64
 		// eg.:	Init(3s,10s,logout)
 		//	there will be 3 slots,
 		//	3s * 3 == 9s
-		panic("timeout%step must be zero")
+		return errors.New("timeout%step must be zero")
 	}
 
 	wt.step = step
@@ -74,7 +75,7 @@ func (wt *WheelTimer) Init(step, timeout time.Duration, doWhenExpired func(int64
 	}
 
 	wt.circle = cl
-
+	return nil
 }
 
 // Update or register an id in the timer
