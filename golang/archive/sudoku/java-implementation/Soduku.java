@@ -43,7 +43,7 @@ public class Soduku {
 
     @SuppressWarnings({"WeakerAccess", "UnusedReturnValue"})
     public int[][] execute() {
-        legalCheck();
+        legalCheck(true);
         // 排除
         exclude();
         Solution solution = null;
@@ -107,19 +107,23 @@ public class Soduku {
 
     }
 
-    private void legalCheck() {
+    private boolean legalCheck(boolean strict) {
         for (int i = 0; i < 9; i++) {
             // 检查列
             boolean ok = check(getColumn(i));
             if (!ok) {
-                System.out.println("原始数据有误");
-                System.exit(0);
+                if (strict) {
+                    System.exit(0);
+                }
+                return false;
             }
             // 检查行
             ok = check(grid[i]);
             if (!ok) {
-                System.out.println("原始数据有误");
-                return;
+                if (strict) {
+                    System.exit(0);
+                }
+                return false;
             }
         }
         // 检查3*3的格子
@@ -140,11 +144,14 @@ public class Soduku {
                 };
                 boolean ok = check(numbers);
                 if (!ok) {
-                    System.out.println("原始数据有误");
-                    System.exit(0);
+                    if (strict) {
+                        System.exit(0);
+                    }
+                    return false;
                 }
             }
         }
+        return true;
     }
 
     /**
@@ -245,13 +252,10 @@ public class Soduku {
 
     }
 
-    private boolean isValidate() {
-        return false;
-    }
 
     private boolean walk(Solution node) {
         if (node == null) {
-            return isValidate();
+            return legalCheck(false);
         }
         outer:
         for (int v : node.options) {
