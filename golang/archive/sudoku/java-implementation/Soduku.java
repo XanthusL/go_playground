@@ -11,14 +11,41 @@ public class Soduku {
     // 每个格子的候选数字
     private HashMap<Integer, Set<Integer>> candidates;
 
+    @SuppressWarnings("WeakerAccess")
+    public Soduku() {
+        grid = new int[9][9];
+        // Initialize candidate data
+        candidates = new HashMap<>();
+        for (int i = 0; i < 81; i++) {
+            HashSet<Integer> set = new HashSet<>();
+            set.add(1);
+            set.add(2);
+            set.add(3);
+            set.add(4);
+            set.add(5);
+            set.add(6);
+            set.add(7);
+            set.add(8);
+            set.add(9);
+            candidates.put(i, set);
+        }
+    }
 
-    public void start() {
-        initializeGrid();
-        initializeCandidates();
+    @SuppressWarnings("unused")
+    public int[][] getGrid() {
+        return grid;
+    }
+
+    @SuppressWarnings("unused")
+    public void setGrid(int[][] grid) {
+        this.grid = grid;
+    }
+
+    @SuppressWarnings({"WeakerAccess", "UnusedReturnValue"})
+    public int[][] execute() {
+        legalCheck();
         // 排除
         exclude();
-
-
         Solution solution = null;
         Solution nodeCusor = null;
         for (int i = 0; i < 9; i++) {
@@ -45,39 +72,22 @@ public class Soduku {
         }
         boolean ok = walk(solution);
         System.out.println(ok);
-        System.out.println(grid);
+        System.out.println(Arrays.deepToString(grid));
+        return grid;
     }
 
-    /**
-     * 初始化候选数据
-     */
-
-    void initializeCandidates() {
-        // Initialize candidate data
-        candidates = new HashMap<>();
-        for (int i = 0; i < 81; i++) {
-            HashSet<Integer> set = new HashSet<>();
-            set.add(1);
-            set.add(2);
-            set.add(3);
-            set.add(4);
-            set.add(5);
-            set.add(6);
-            set.add(7);
-            set.add(8);
-            set.add(9);
-            candidates.put(i, set);
-        }
+    @SuppressWarnings("WeakerAccess")
+    public void start() {
+        inputGrid();
+        execute();
     }
 
     /**
      * 初始化原始格子
      */
-    void initializeGrid() {
+    private void inputGrid() {
         InputStreamReader reader = new InputStreamReader(System.in);
         BufferedReader bufferedReader = new BufferedReader(reader);
-        grid = new int[9][9];
-
         for (int i = 0; i < 9; i++) {
             try {
                 String line = bufferedReader.readLine();
@@ -89,22 +99,27 @@ public class Soduku {
                 for (String s : numStrs) {
                     grid[i][indice++] = Integer.parseInt(s);
                 }
-                // 检查输入的行
-                boolean ok = check(grid[i], false);
-                if (!ok) {
-                    System.out.println("输入有误");
-                    return;
-                }
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        // 检查每一列
+
+    }
+
+    private void legalCheck() {
         for (int i = 0; i < 9; i++) {
-            boolean ok = check(getColumn(i), false);
+            // 检查列
+            boolean ok = check(getColumn(i));
             if (!ok) {
-                System.out.println("输入有误");
+                System.out.println("原始数据有误");
                 System.exit(0);
+            }
+            // 检查行
+            ok = check(grid[i]);
+            if (!ok) {
+                System.out.println("原始数据有误");
+                return;
             }
         }
         // 检查3*3的格子
@@ -123,22 +138,21 @@ public class Soduku {
                         grid[x + 2][y + 1],
                         grid[x + 2][y + 2],
                 };
-                boolean ok = check(numbers, false);
+                boolean ok = check(numbers);
                 if (!ok) {
-                    System.out.println("输入有误");
+                    System.out.println("原始数据有误");
                     System.exit(0);
                 }
             }
         }
     }
 
-
     /**
      * 获取列
      *
      * @param index 0-8
      */
-    int[] getColumn(int index) {
+    private int[] getColumn(int index) {
         return new int[]{
                 grid[0][index],
                 grid[1][index],
@@ -152,7 +166,7 @@ public class Soduku {
         };
     }
 
-    void exclude() {
+    private void exclude() {
         for (int i = 0; i < 9; i++) {
             for (int j = 0; j < 9; j++) {
                 int bigIndex = i * 9 + j;
@@ -196,7 +210,7 @@ public class Soduku {
         Set<Integer> integers = candidates.get(index);
         for (int n : nums) {
             if (n != 0) {
-                integers.remove(nums);
+                integers.remove(n);
             }
         }
     }
@@ -206,23 +220,24 @@ public class Soduku {
      * 检查一组数是否是1-9且不重复
      *
      * @param numbers 长度为9的数组
-     * @param fulled  是否已经完全填充（空白用0表示，未完全填充时，不考虑0的情况）
      * @return 是否可用
      */
-    public boolean check(int[] numbers, boolean fulled) {
+    private boolean check(int[] numbers) {
         int len = numbers.length;
         int[] copy = Arrays.copyOf(numbers, len);
         Arrays.sort(copy);
 
         for (int i = 1; i < len; i++) {
             int v = copy[i];
-            if (!fulled && v == 0) {
+            if (v == 0) {
                 continue;
             }
             if (v == copy[i - 1]) {
+                System.out.println("重复");
                 return false;
             }
             if (v > 9) {
+                System.out.println(">9");
                 return false;
             }
         }
@@ -230,11 +245,11 @@ public class Soduku {
 
     }
 
-    boolean isValidate() {
+    private boolean isValidate() {
         return false;
     }
 
-    boolean walk(Solution node) {
+    private boolean walk(Solution node) {
         if (node == null) {
             return isValidate();
         }
@@ -247,15 +262,9 @@ public class Soduku {
             int[] ints2 = getSubGrid(bigIndex / 9, bigIndex % 9);
 
             int[] relations = new int[27];
-            for (int i = 0; i < 9; i++) {
-                relations[i] = ints0[i];
-            }
-            for (int i = 0; i < 9; i++) {
-                relations[9 + i] = ints1[i];
-            }
-            for (int i = 0; i < 9; i++) {
-                relations[18 + i] = ints2[i];
-            }
+            System.arraycopy(ints0, 0, relations, 0, 9);
+            System.arraycopy(ints1, 0, relations, 9, 9);
+            System.arraycopy(ints2, 0, relations, 18, 9);
 
             for (int rv : relations) {
                 if (rv != 0 && rv == v) {
@@ -273,8 +282,7 @@ public class Soduku {
         return false;
     }
 
-    int[] getSubGrid(int x, int y) {
-
+    private int[] getSubGrid(int x, int y) {
         x /= 3;
         x *= 3;
         y /= 3;
@@ -289,7 +297,5 @@ public class Soduku {
                 grid[x + 2][y],
                 grid[x + 2][y + 1],
                 grid[x + 2][y + 2]};
-
-
     }
 }
