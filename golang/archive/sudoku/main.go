@@ -85,7 +85,6 @@ func main() {
 				}
 				if solution == nil {
 					solution = n
-					nodeCursor = n
 				} else {
 					nodeCursor.Next = n
 				}
