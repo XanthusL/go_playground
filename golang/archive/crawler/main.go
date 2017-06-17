@@ -9,33 +9,48 @@ import (
 	"os"
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/golang/glog"
+
+	"net/url"
 )
 
 var (
-	client *http.Client = &http.Client{}
-	pipe   chan string
+	client     *http.Client = &http.Client{}
+	pipe       chan string
+	downloader chan struct{}
+	site       string
 
 	urlRepo    map[string]struct{}
 	urlRepoLck sync.RWMutex
 
-	wg sync.WaitGroup
+	wgFetchURL sync.WaitGroup
+	wgDownLoad sync.WaitGroup
 )
 
 func main() {
 	rootUrl := flag.String("url", "https://github.com/trending", "The root URL to fetch")
 	depth := flag.Int("d", 2, "The depth")
 	flag.Parse()
+
+	u, err := url.Parse(*rootUrl)
+	if err == nil {
+		site = u.Scheme + "://" + u.Host
+	}
+
 	urlRepo = make(map[string]struct{})
 	pipe = make(chan string, 20)
+	downloader = make(chan struct{}, 10)
 	Crawl(*rootUrl, *depth, &RealFetcher{})
-	for s := range pipe {
-		go download(s)
+	go func() {
+		for s := range pipe {
+			go download(s)
 
-	}
-	wg.Wait()
+		}
+	}()
+	wgFetchURL.Wait()
+	close(pipe)
+	wgDownLoad.Wait()
 
 	fmt.Println("Press ENTER to exit")
 	fmt.Scanln(new(string))
@@ -46,8 +61,8 @@ type Fetcher interface {
 }
 
 func Crawl(url string, depth int, fetcher Fetcher) {
-	wg.Add(1)
-	defer wg.Done()
+	wgFetchURL.Add(1)
+	defer wgFetchURL.Done()
 	if depth <= 0 {
 		return
 	}
@@ -56,7 +71,6 @@ func Crawl(url string, depth int, fetcher Fetcher) {
 		glog.Errorln("Failed to fetch", url)
 		return
 	}
-	glog.Infoln("Fetch", url, "[done]")
 	for _, u := range urls {
 		go Crawl(u, depth-1, fetcher)
 	}
@@ -67,7 +81,6 @@ type RealFetcher struct {
 }
 
 func (f *RealFetcher) Fetch(url string) ([]string, error) {
-	glog.Infoln(time.Now().UTC(), "[Fetching] start with", url)
 	resp, err := client.Get(url)
 	if err != nil {
 		return nil, err
@@ -86,6 +99,9 @@ func (f *RealFetcher) Fetch(url string) ([]string, error) {
 		_, ok := urlRepo[v]
 		if ok {
 			continue
+		}
+		if strings.HasPrefix(v, "/") {
+			v = site + v
 		}
 		if strings.HasPrefix(v, "http") {
 			urlRepo[v] = struct{}{}
@@ -122,8 +138,10 @@ func (f *RealFetcher) Fetch(url string) ([]string, error) {
 }
 
 func download(u string) {
-	wg.Add(1)
-	defer wg.Done()
+	downloader <- struct{}{}
+	defer func() { <-downloader }()
+	wgDownLoad.Add(1)
+	defer wgDownLoad.Done()
 	resp, err := client.Get(u)
 	if err != nil {
 		glog.Errorln("Failed to download", u, err)
@@ -146,5 +164,5 @@ func download(u string) {
 		glog.Errorln("Failed to download", u, err)
 		return
 	}
-	glog.Infoln(time.Now().UTC(), name, "[saved]")
+	glog.Infoln(name, "[saved]")
 }
