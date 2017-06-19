@@ -43,7 +43,10 @@ func main() {
 		}
 	}
 	// Column check
-	traversalRow(checkFunc)
+	for i := 0; i < 9; i++ {
+		checkFunc(getColumn(i))
+	}
+	//traversalRow(checkFunc)
 	// Sub grid check
 	traversalSubGrid(checkFunc)
 	// Initialize candidate data
@@ -115,11 +118,6 @@ func check(numbers [9]int, full bool) error {
 		}
 	}
 	return nil
-}
-func traversalRow(f func([9]int)) {
-	for i := 0; i < 9; i++ {
-		f(grids[i])
-	}
 }
 func traversalSubGrid(f func([9]int)) {
 	for j := 0; j < 3; j++ {
@@ -205,13 +203,14 @@ func exclude() error {
 				}
 				delete(candidates, i*9+j)
 			} else {
-				fmt.Println(candidates[9*i+j].ToSlice())
+				//fmt.Println(candidates[9*i+j].ToSlice())
 			}
 		}
 	}
 	return nil
 }
 func walk(n *Node) bool {
+	fmt.Print("x")
 	if n == nil {
 		return isValidate()
 	}
